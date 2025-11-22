@@ -5,34 +5,65 @@
     <title>AudioSET</title>
     <style>
         * {
-            font-family: "Jetbrains Mono", 'Courier New', Courier, monospace
+            font-family: "Jetbrains Mono", 'Lexend', 'Courier New', Courier, monospace
         }
     </style>
 </head>
 
 <body>
-    <h1>Audio Listing</h1>
-    <div id="audio-container"></div>
+    <h1>Audio Player</h1>
+    <div id="player-container">
+        <audio id="audio-player" controls loop></audio>
+        <p></p>
+        <select id="audio-select"></select>
+    </div>
+    
     <script>
-        function createAudioElements() {
-            const audioContainer = document.getElementById('audio-container');
-            const audioFiles = []; // place audio files here
+        const audioFiles = []; // place audio files here
 
+        const audioPlayer = document.getElementById('audio-player');
+        audioPlayer.volume = 0.5
+        const audioSelect = document.getElementById('audio-select');
+
+        // populate the dropdown
+        function populateDropdown() {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '--- Select a track ---';
+            audioSelect.appendChild(defaultOption);
+
+            // Add an option for each file in the array
             audioFiles.forEach(file => {
-                const musicListItem = document.createElement('details')
-                const fileName = document.createElement('summary');
-                fileName.innerHTML = file;
-                musicListItem.appendChild(fileName);
-
-                const audioElement = document.createElement('audio');
-                audioElement.src = file;
-                audioElement.controls = true;
-                audioElement.loop = true;
-                musicListItem.appendChild(audioElement);
-                audioContainer.appendChild(musicListItem)
+                const option = document.createElement('option');
+                option.value = file; // path to the file
+                option.textContent = file; // What user sees
+                audioSelect.appendChild(option);
             });
+            
+            // If there's only one track, select it by default
+            if (audioFiles.length === 1) {
+                audioSelect.selectedIndex = 1; // select index 1 because index 0 is supposed to be disabled
+                updateAudioSource();
+            }
         }
-        createAudioElements();
+
+        // update audio source
+        function updateAudioSource() {
+            const selectedFile = audioSelect.value;
+            
+            if (selectedFile) {
+                audioPlayer.src = selectedFile;
+                audioPlayer.load(); // Load the new source
+                audioPlayer.play() // autoplay
+            } else {
+                audioPlayer.removeAttribute('src');
+                audioPlayer.load();
+            }
+        }
+
+        audioSelect.addEventListener('change', updateAudioSource);
+
+        populateDropdown();
     </script>
 </body>
 
